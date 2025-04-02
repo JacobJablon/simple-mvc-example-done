@@ -313,37 +313,30 @@ const setDogName = async (req, res) => {
   }
 };
 
-const increaseAge = (req, res) => {
+const increaseAge = async (req, res) => {
   if (!req.body.firstname || !req.body.lastname) {
-    return res.status(400).json({ error: 'Name is required to increase the age of a dog' });
+    return res.status(400).json({ error: 'First and last names are both required to increase the age of a dog' });
   }
 
-  let doc;
-
   try {
-    doc = Dog.findOneAndUpdate({name: `${req.body.firstname} ${req.body.lastname}`}, { $inc: { age: 1 } }, {
+    const updateP = await Dog.findOneAndUpdate({name: `${req.body.firstname} ${req.body.lastname}`}, { $inc: { age: 1 } }, {
       returnDocument: 'after', // Populates doc in the .then() with the version after update
       sort: { createdDate: 'descending' },
     }).lean().exec();
+
+    if (!updateP) {
+      return res.status(404).json({ error: 'No dog with that name exists' });
+    }
+
+    return res.json({
+      name: updateP.name,
+      breed: updateP.breed,
+      age: updateP.age
+    });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: 'Something went wrong' });
   }
-
-  if (!doc) {
-    return res.status(404).json({ error: 'No dog with that name exists' });
-  }
-
-  doc.then((dc) => res.json({
-    name: dc.name,
-    breed: dc.breed,
-    age: dc.age,
-  }));
-
-  doc.catch((err) => {
-    console.log(err);
-    return res.status(500).json({ error: 'Something went wrong' });
-  });
 }
 
 // A function to send back the 404 page.
