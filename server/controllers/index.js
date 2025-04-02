@@ -319,7 +319,7 @@ const increaseAge = async (req, res) => {
   }
 
   try {
-    const updateP = await Dog.findOneAndUpdate({name: `${req.body.firstname} ${req.body.lastname}`}, { $inc: { age: 1 } }, {
+    const updateP = await Dog.findOneAndUpdate({ name: `${req.body.firstname} ${req.body.lastname}` }, { $inc: { age: 1 } }, {
       returnDocument: 'after', // Populates doc in the .then() with the version after update
       sort: { createdDate: 'descending' },
     }).lean().exec();
@@ -331,13 +331,13 @@ const increaseAge = async (req, res) => {
     return res.json({
       name: updateP.name,
       breed: updateP.breed,
-      age: updateP.age
+      age: updateP.age,
     });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: 'Something went wrong' });
   }
-}
+};
 
 // A function to send back the 404 page.
 const notFound = (req, res) => {
